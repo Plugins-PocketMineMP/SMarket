@@ -13,46 +13,41 @@ use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\world\Position;
 
-class Util
-{
+class Util{
 
 	public static $sitemdb = null;
 
-	public static function init()
-	{
+	public static function init(){
 		self::$sitemdb = Server::getInstance()->getPluginManager()->getPlugin("SItemDB");
 	}
 
-	public static function itemName(Item $item)
-	{
-		if (self::$sitemdb !== null) {
+	public static function itemName(Item $item){
+		if(self::$sitemdb !== null){
 			$info = self::$sitemdb->getItemInfoByItem($item);
-			if ($info !== null) {
+			if($info !== null){
 				return $info->getName();
 			}
 		}
-		if ($item->hasCustomName()) {
+		if($item->hasCustomName()){
 			return $item->getCustomName();
 		}
-		if (self::$sitemdb !== null) {
-			$info = self::$sitemdb->getItemInfoByItem(Item::get($item->getId(), $item->getDamage()));
-			if ($info !== null) {
+		if(self::$sitemdb !== null){
+			$info = self::$sitemdb->getItemInfoByItem(ItemFactory::getInstance()->get($item->getId(), $item->getMeta()));
+			if($info !== null){
 				return $info->getName();
 			}
 		}
 		return $item->getName() ?? "Unknown";
 	}
 
-	public static function itemFullName(Item $item)
-	{
+	public static function itemFullName(Item $item){
 		return self::itemName($item) . " " . $item->getCount() . "개";
 	}
 
-	public static function itemHollCount(Player $player, Item $item)
-	{
+	public static function itemHollCount(Player $player, Item $item){
 		$count = 0;
-		foreach ($player->getInventory()->all($item) as $index => $content) {
-			if ($index >= $player->getInventory()->getSize()) {
+		foreach($player->getInventory()->all($item) as $index => $content){
+			if($index >= $player->getInventory()->getSize()){
 				continue;
 			}
 			$count += $content->getCount();
@@ -60,18 +55,17 @@ class Util
 		return $count;
 	}
 
-	public static function parseItem(string $input)
-	{
+	public static function parseItem(string $input){
 		$item = null;
 		// Parse : from SItemDB
-		if (self::$sitemdb !== null) {
+		if(self::$sitemdb !== null){
 			$item = self::$sitemdb->getItem($input);
 		}
 
 		// Parse : id or id:data
-		if ($item === null) {
+		if($item === null){
 			$item = LegacyStringToItemParser::getInstance()->parse($input); // PocketMine parse
-			if ($item->getId() == ItemIds::AIR) {
+			if($item->getId() == ItemIds::AIR){
 				return null;
 			}
 			// --- Default Parser ---
@@ -83,40 +77,31 @@ class Util
 		return $item;
 	}
 
-	public static function itemHash(Item $item)
-	{
+	public static function itemHash(Item $item){
 		$hash = $item->getId() . ":" . $item->getMeta();
-		if ($item->hasNamedTag()) {
+		if($item->hasNamedTag()){
 			$hash .= ":" . (new LittleEndianNbtSerializer())->write(new TreeRoot($item->getNamedTag()));
 		}
 		return $hash;
 	}
 
-	public static function vector3Hash(Vector3 $pos)
-	{
+	public static function vector3Hash(Vector3 $pos){
 		return $pos->x . ":" . $pos->y . ":" . $pos->z;
 	}
 
-	public static function positionHash(Position $pos)
-	{
+	public static function positionHash(Position $pos){
 		return $pos->x . ":" . $pos->y . ":" . $pos->z . ":" . $pos->getWorld()->getFolderName();
 	}
 
-	public static function floor(Vector3 $pos)
-	{
-		return $pos->setComponents(
-			$pos->getFloorX(),
-			$pos->getFloorY(),
-			$pos->getFloorZ()
-		);
+	public static function floor(Vector3 $pos){
+		return $pos->floor();
 	}
 
-	public static function jsonDecode(string $string)
-	{
+	public static function jsonDecode(string $string){
 		$result = json_decode($string, true);
 		$errorCode = json_last_error();
-		if ($errorCode !== JSON_ERROR_NONE) {
-			switch ($errorCode) {
+		if($errorCode !== JSON_ERROR_NONE){
+			switch($errorCode){
 				case JSON_ERROR_DEPTH:
 					throw new \RuntimeException("The maximum stack depth has been exceeded");
 				case JSON_ERROR_STATE_MISMATCH:

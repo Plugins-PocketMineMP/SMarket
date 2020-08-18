@@ -11,35 +11,32 @@ use pocketmine\inventory\FurnaceRecipe;
 use solo\smarket\SMarket;
 use solo\smarket\util\Util;
 
-class MarketValidateCommand extends Command
-{
+class MarketValidateCommand extends Command{
 
 	private $owner;
 
-	public function __construct(SMarket $owner)
-	{
+	public function __construct(SMarket $owner){
 		parent::__construct("상점가격점검", "상점의 가격을 점검합니다.", "/상점가격점검");
 		$this->setPermission("smarket.command.validate");
 
 		$this->owner = $owner;
 	}
 
-	public function execute(CommandSender $sender, string $label, array $args): bool
-	{
-		if (!$sender->hasPermission($this->getPermission())) {
+	public function execute(CommandSender $sender, string $label, array $args) : bool{
+		if(!$sender->hasPermission($this->getPermission())){
 			$sender->sendMessage(SMarket::$prefix . "이 명령을 사용할 권한이 없습니다.");
 			return true;
 		}
 
 		$results = [];
-		foreach ($this->owner->getAllValidator() as $validator) {
-			foreach ($validator->validate() as $result) {
-				$results [] = $result;
+		foreach($this->owner->getAllValidator() as $validator){
+			foreach($validator->validate() as $result){
+				$results[] = $result;
 			}
 		}
-		foreach ($results as $result) {
+		foreach($results as $result){
 			$sender->sendMessage(SMarket::$prefix . $result->getType() . " 을(를) 통해 차익이 발생합니다 : ");
-			foreach ($result->getHowTo() as $text) {
+			foreach($result->getHowTo() as $text){
 				$sender->sendMessage("§7     " . $text);
 			}
 		}
@@ -53,8 +50,7 @@ class MarketValidateCommand extends Command
 
 		/*
 		 * Check Market
-		 */
-		// foreach($marketFactory->getAllMarket() as $market){
+		 */ // foreach($marketFactory->getAllMarket() as $market){
 		// if($market->getSellPrice() > $market->getBuyPrice()){
 		// $sender->sendMessage(
 		// SMarket::$prefix . "상점 구매/판매 을(를) 통해 차익이 발생합니다 : "
@@ -68,8 +64,7 @@ class MarketValidateCommand extends Command
 
 		/*
 		 * Check Craft
-		 */
-		// foreach($this->owner->getServer()->getCraftingManager()->getRecipes() as $recipe){
+		 */ // foreach($this->owner->getServer()->getCraftingManager()->getRecipes() as $recipe){
 		// $ingredients = [];
 		// $result = $recipe->getResult();
 		// $market = $marketFactory->getMarketByItem($result, false);

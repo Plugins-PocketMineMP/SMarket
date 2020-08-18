@@ -12,26 +12,23 @@ use solo\smarket\task\SellAllTask;
 use solo\smarket\util\SellException;
 use solo\smarket\util\Util;
 
-class SellCommand extends Command
-{
+class SellCommand extends Command{
 
 	private $owner;
 
-	public function __construct(SMarket $owner)
-	{
+	public function __construct(SMarket $owner){
 		parent::__construct("판매", "아이템을 판매합니다.", "/판매 <갯수/전체>");
 		$this->setPermission("smarket.command.sell");
 
 		$this->owner = $owner;
 	}
 
-	public function execute(CommandSender $sender, string $label, array $args): bool
-	{
-		if (!$sender instanceof Player) {
+	public function execute(CommandSender $sender, string $label, array $args) : bool{
+		if(!$sender instanceof Player){
 			$sender->sendMessage(SMarket::$prefix . "인게임에서만 사용할 수 있습니다.");
 			return true;
 		}
-		if (!$sender->hasPermission($this->getPermission())) {
+		if(!$sender->hasPermission($this->getPermission())){
 			$sender->sendMessage(SMarket::$prefix . "이 명령을 실행할 권한이 없습니다.");
 			return true;
 		}
@@ -40,10 +37,10 @@ class SellCommand extends Command
 		/*
 		 * 모든 아이템을 판매(/판매 전체)
 		 */
-		if ($args[0] == "전체") {
-			try {
+		if($args[0] == "전체"){
+			try{
 				(new SellAllTask($this->owner, $sender))->start();
-			} catch (SellException $e) {
+			}catch(SellException $e){
 				$sender->sendMessage(SMarket::$prefix . $e->getMessage());
 			}
 			return true;
@@ -54,27 +51,27 @@ class SellCommand extends Command
 		 */
 		$market = $this->owner->getMarketManager()->getSelectedMarket($sender);
 		$count = (preg_match("/[0-9]+/", $args [0]) && intval($args [0]) > 0) ? intval($args[0]) : null;
-		if ($market === null) {
+		if($market === null){
 			$itemInHand = $sender->getInventory()->getItemInHand();
-			if ($itemInHand->getId() !== ItemIds::AIR) {
+			if($itemInHand->getId() !== ItemIds::AIR){
 				$market = $this->owner->getMarketFactory()->getMarketByItem($itemInHand);
-				if ($count === null) {
+				if($count === null){
 					$count = $itemInHand->getCount();
 				}
 			}
 		}
-		if ($market === null) {
+		if($market === null){
 			$sender->sendMessage(SMarket::$prefix . "상점에서 아이템을 선택해주세요.");
 			return true;
 		}
-		if ($count === null) {
+		if($count === null){
 			$sender->sendMessage(SMarket::$prefix . "사용법 : " . $this->getUsage() . " - " . $this->getDescription());
 			return true;
 		}
 		$money_before = $this->owner->getEconomyAPI()->myMoney($sender);
-		try {
+		try{
 			$market->sell($sender, $count);
-		} catch (SellException $e) {
+		}catch(SellException $e){
 			$sender->sendMessage(SMarket::$prefix . $e->getMessage());
 			return true;
 		}

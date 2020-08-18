@@ -2,7 +2,6 @@
 
 namespace solo\smarket\util;
 
-class BuyException extends MarketException
-{
+class BuyException extends MarketException{
 
 }
